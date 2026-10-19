@@ -1,9 +1,19 @@
 // use prisma-8
 
-model Post {
+model Category {
   id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
+  name      String   @unique
+  posts     Post[]
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
+}
+
+model Post {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String?
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  createdAt  TimestamptzString @default(now())
+  updatedAt  temporal.updatedAtString()
 }

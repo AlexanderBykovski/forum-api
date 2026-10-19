@@ -1,52 +1,79 @@
 import type { Request, Response } from "express";
-import type { PostService } from "../../domain/post/post.types.js";
-import type { PostHandler } from "./posts.types.js";
+import type { PostService } from "../../domain/post/post.types";
+import type { PostHandler } from "./posts.types";
+import type { PostFilter } from "../../domain/post/entity";
+import { validateCreatePost, isInvalidCategoryId } from "../../dto/post.dto";
+import { BadRequestError, UnprocessableEntityError } from "../../common/errors";
 
 export function createPostHandler(service: PostService): PostHandler {
 
+    function parseId(raw: string | string[] | undefined): number {
+        const value = Array.isArray(raw) ? raw[0] : raw;
+        const id = Number(value);
+        if (!value || !Number.isInteger(id) || id <= 0) {
+            throw new BadRequestError("INVALID_POST_ID");
+        }
+
+        return id;
+    }
+
     async function getAllPosts(req: Request, res: Response) {
-        const posts = await service.getPosts();
+        const rawCategoryId = req.query["categoryId"];
+        const rawCategoryName = req.query["category"];
+
+        let categoryId: number | undefined;
+        if (rawCategoryId !== undefined) {
+            const value = Array.isArray(rawCategoryId) ? rawCategoryId[0] : rawCategoryId;
+            const parsed = Number(value);
+            if (!value || !Number.isInteger(parsed) || parsed <= 0) {
+                throw new BadRequestError("INVALID_CATEGORY_ID");
+            }
+
+            categoryId = parsed;
+        }
+
+        let categoryName: string | undefined;
+        if (rawCategoryName !== undefined) {
+            const value = Array.isArray(rawCategoryName) ? rawCategoryName[0] : rawCategoryName;
+            if (typeof value !== "string" || value.trim().length === 0) {
+                throw new BadRequestError("INVALID_CATEGORY_NAME");
+            }
+
+            categoryName = value.trim();
+        }
+
+        const filter: PostFilter = {};
+        if (categoryId !== undefined || categoryName !== undefined) {
+            const resolvedId = await service.resolveCategoryId(categoryId, categoryName);
+            filter.categoryId = resolvedId;
+        }
+
+        const posts = await service.getPosts(filter);
         res.status(200).json(posts);
     }
 
     async function getPostById(req: Request, res: Response) {
-        const id = Number(req.params.id);
-        if (!Number.isInteger(id) || id <= 0) {
-            res.status(400).json({
-                message: "INVALID_POST_ID"
-            });
-            return;
-        }
-
+        const id = parseId(req.params.id);
         const post = await service.getPost(id);
-        if (!post) {
-            res.status(404).json({
-                message: "POST_NOT_FOUND"
-            });
-            return;
-        }
 
         res.status(200).json(post);
     }
 
     async function createPost(req: Request, res: Response) {
-        const { title, content } = req.body ?? {};
-
-        if (typeof title !== "string" || title.trim().length === 0) {
-            res.status(422).json({
-                message: "TITLE_IS_REQUIRED"
-            });
-            return;
+        const body = req.body;
+        if (typeof body === "object" && body !== null && !Array.isArray(body)) {
+            const rawCategoryId = (body as Record<string, unknown>)["categoryId"];
+            if (rawCategoryId !== undefined && isInvalidCategoryId(rawCategoryId)) {
+                throw new BadRequestError("INVALID_CATEGORY_ID");
+            }
         }
 
-        if (content !== undefined && content !== null && typeof content !== "string") {
-            res.status(422).json({
-                message: "CONTENT_MUST_BE_A_STRING"
-            });
-            return;
+        const result = validateCreatePost(body);
+        if (!result.ok) {
+            throw new UnprocessableEntityError(result.errors);
         }
 
-        const post = await service.createPost({ title, content: content ?? null });
+        const post = await service.createPost(result.data);
         res.status(201).json(post);
     }
 

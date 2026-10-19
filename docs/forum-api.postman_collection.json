@@ -1,0 +1,170 @@
+{
+  "info": {
+    "name": "Forum API",
+    "description": "Forum API: categories and posts (Prisma ORM 8). Base URL: http://localhost:8000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Create category: Новини",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "http://localhost:8000/categories" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Новини\"\n}" }
+          }
+        },
+        {
+          "name": "Create category: Обговорення",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "http://localhost:8000/categories" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Обговорення\"\n}" }
+          }
+        },
+        {
+          "name": "Get all categories",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:8000/categories" }
+          }
+        },
+        {
+          "name": "Get category by id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:8000/categories/1" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "Create post 1 (category.connect)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "http://localhost:8000/posts" },
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Перший допис\",\n  \"content\": \"Привіт, форуме!\",\n  \"categoryId\": 1\n}" }
+          }
+        },
+        {
+          "name": "Create post 2 (category.connect)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "http://localhost:8000/posts" },
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Другий допис\",\n  \"content\": \"Обговорюємо Prisma 8\",\n  \"categoryId\": 2\n}" }
+          }
+        },
+        {
+          "name": "Create post 3 (category.connect)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "http://localhost:8000/posts" },
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Третій допис\",\n  \"categoryId\": 1\n}" }
+          }
+        },
+        {
+          "name": "Get all posts (include category)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:8000/posts" }
+          }
+        },
+        {
+          "name": "Get post by id (include category)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:8000/posts/1" }
+          }
+        },
+        {
+          "name": "Filter posts by category name",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:8000/posts?category=%D0%9D%D0%BE%D0%B2%D0%B8%D0%BD%D0%B8" }
+          }
+        },
+        {
+          "name": "Filter posts by categoryId",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:8000/posts?categoryId=1" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Errors",
+      "item": [
+        {
+          "name": "400: invalid post id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:8000/posts/abc" }
+          }
+        },
+        {
+          "name": "400: invalid categoryId in body",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "http://localhost:8000/posts" },
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"x\",\n  \"categoryId\": \"abc\"\n}" }
+          }
+        },
+        {
+          "name": "404: post not found",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:8000/posts/999" }
+          }
+        },
+        {
+          "name": "404: category not found",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "http://localhost:8000/posts" },
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"x\",\n  \"categoryId\": 999\n}" }
+          }
+        },
+        {
+          "name": "409: duplicate category name",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "http://localhost:8000/categories" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Новини\"\n}" }
+          }
+        },
+        {
+          "name": "422: missing title",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "http://localhost:8000/posts" },
+            "body": { "mode": "raw", "raw": "{\n  \"categoryId\": 1\n}" }
+          }
+        },
+        {
+          "name": "422: unknown field",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "http://localhost:8000/categories" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"x\",\n  \"foo\": 1\n}" }
+          }
+        }
+      ]
+    }
+  ]
+}
