@@ -1,5 +1,5 @@
 import { Router } from "express"
-import type { PostHandler } from "../transport/handlers/posts.types.ts"
+import type { PostHandler } from "../transport/handlers/posts.types"
 
 export function createPostRouter(handler: PostHandler) {
     const router = Router();

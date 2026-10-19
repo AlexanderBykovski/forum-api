@@ -12,7 +12,7 @@
     "db:init": "prisma db init",
     "db:update": "prisma db update",
     "db:verify": "prisma db verify",
-    "db:studio": "prisma studio",
+    "db:schema": "prisma db schema",
     "contract:emit": "prisma contract emit"
   },
   "dependencies": {
