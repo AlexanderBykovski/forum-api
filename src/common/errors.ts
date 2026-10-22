@@ -23,6 +23,12 @@ export class NotFoundError extends ApiError {
     }
 }
 
+export class UnauthorizedError extends ApiError {
+    constructor(code: string) {
+        super(401, code);
+    }
+}
+
 export class ConflictError extends ApiError {
     constructor(code: string) {
         super(409, code);

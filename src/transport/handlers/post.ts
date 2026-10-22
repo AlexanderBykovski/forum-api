@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import type { PostService } from "../../domain/post/post.types";
 import type { PostHandler } from "./posts.types";
 import type { PostFilter } from "../../domain/post/entity";
-import { validateCreatePost, isInvalidCategoryId } from "../../dto/post.dto";
+import { validateCreatePost, isInvalidId } from "../../dto/post.dto";
 import { BadRequestError, UnprocessableEntityError } from "../../common/errors";
 
 export function createPostHandler(service: PostService): PostHandler {
@@ -62,9 +62,15 @@ export function createPostHandler(service: PostService): PostHandler {
     async function createPost(req: Request, res: Response) {
         const body = req.body;
         if (typeof body === "object" && body !== null && !Array.isArray(body)) {
-            const rawCategoryId = (body as Record<string, unknown>)["categoryId"];
-            if (rawCategoryId !== undefined && isInvalidCategoryId(rawCategoryId)) {
+            const record = body as Record<string, unknown>;
+            const rawCategoryId = record["categoryId"];
+            if (rawCategoryId !== undefined && isInvalidId(rawCategoryId)) {
                 throw new BadRequestError("INVALID_CATEGORY_ID");
+            }
+
+            const rawAuthorId = record["authorId"];
+            if (rawAuthorId !== undefined && isInvalidId(rawAuthorId)) {
+                throw new BadRequestError("INVALID_AUTHOR_ID");
             }
         }
 

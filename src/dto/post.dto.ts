@@ -2,16 +2,17 @@ export interface CreatePostDto {
     title: string;
     content: string | null;
     categoryId: number;
+    authorId: number;
 }
 
 export type ValidationResult<T> =
     | { ok: true; data: T }
     | { ok: false; errors: string[] };
 
-const ALLOWED_FIELDS = ["title", "content", "categoryId"];
+const ALLOWED_FIELDS = ["title", "content", "categoryId", "authorId"];
 const MAX_TITLE_LENGTH = 200;
 
-export function isInvalidCategoryId(value: unknown): boolean {
+export function isInvalidId(value: unknown): boolean {
     return typeof value !== "number" || !Number.isInteger(value) || value <= 0;
 }
 
@@ -45,6 +46,10 @@ export function validateCreatePost(body: unknown): ValidationResult<CreatePostDt
         errors.push("CATEGORY_ID_IS_REQUIRED");
     }
 
+    if (record["authorId"] === undefined || record["authorId"] === null) {
+        errors.push("AUTHOR_ID_IS_REQUIRED");
+    }
+
     if (errors.length > 0) {
         return { ok: false, errors };
     }
@@ -55,6 +60,7 @@ export function validateCreatePost(body: unknown): ValidationResult<CreatePostDt
             title: (title as string).trim(),
             content: (content as string | null | undefined) ?? null,
             categoryId: record["categoryId"] as number,
+            authorId: record["authorId"] as number,
         },
     };
 }
