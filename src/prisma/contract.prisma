@@ -1,9 +1,28 @@
 // use prisma-8
 
-model Post {
+model Category {
   id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
+  name      String   @unique
+  posts     Post[]
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  hashPassword String
+  posts        Post[]
+}
+
+model Post {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String?
+  categoryId Int
+  authorId   Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  author     User     @relation(fields: [authorId], references: [id])
+  createdAt  TimestamptzString @default(now())
+  updatedAt  temporal.updatedAtString()
 }
